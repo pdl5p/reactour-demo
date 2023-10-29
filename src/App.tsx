@@ -1,30 +1,30 @@
-import { useRef, useState } from "react";
-import Tour, { ReactourProps } from "reactour";
+import { useRef } from "react";
+import { useTour } from "@reactour/tour";
+import { TourProvider } from "@reactour/tour";
+
+const items = [...Array(10).keys()];
+const steps = items.map((_, i) => ({
+  selector: `.tour-item-${i}`,
+  content: `This is item ${i}`,
+}));
 
 function App() {
+  return (
+    <TourProvider steps={steps}>
+      <AppContent />
+    </TourProvider>
+  );
+}
+
+function AppContent() {
   const scrollerRef = useRef(null);
-  const [tourOpen, setTourOpen] = useState(false);
-
-  const items = [...Array(10).keys()];
-
-  const openTour = () => {
-    setTourOpen(true);
-  };
+  const { setIsOpen } = useTour();
 
   const setScrollPosition = () => {
     if (scrollerRef.current) {
       const scroller = scrollerRef.current as HTMLDivElement;
       scroller.scrollTop = 150;
     }
-  };
-
-  const tourProps: ReactourProps = {
-    isOpen: tourOpen,
-    onRequestClose: () => setTourOpen(false),
-    steps: items.map((item, i) => ({
-      selector: `.tour-item-${i}`,
-      content: `This is item ${item}`,
-    })),
   };
 
   return (
@@ -38,7 +38,7 @@ function App() {
         </button>
         <button
           className="rounded border-2 border-slate-700 bg-slate-200 px-3 py-2 hover:bg-slate-100"
-          onClick={openTour}
+          onClick={() => setIsOpen(true)}
         >
           2. Open Tour
         </button>
@@ -49,12 +49,12 @@ function App() {
           className="flex h-full flex-col overflow-y-scroll"
         >
           <div className="flex-grow">
-            {items.map((item, i) => (
+            {items.map((_, i) => (
               <div
                 key={i}
                 className={`tour-item-${i} m-8 flex h-16 items-center justify-center rounded-md border border-slate-600  bg-slate-200 shadow-md shadow-slate-300`}
               >
-                Item {item}
+                Item {i}
               </div>
             ))}
           </div>
@@ -63,7 +63,6 @@ function App() {
           </div>
         </div>
       </div>
-      <Tour {...tourProps}></Tour>
     </div>
   );
 }
